@@ -1,0 +1,120 @@
+.questions-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0;
+  background: var(--gradient-bg);
+  flex-direction: column;
+}
+
+.progress-container {
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto 40px auto;
+}
+
+.progress-bar {
+  height: 8px;
+  background: rgba(13, 148, 136, 0.2);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--primary-color);
+  border-radius: 4px;
+  transition: width 0.4s ease-out;
+}
+
+.progress-text {
+  margin-top: 10px;
+  text-align: right;
+  font-size: 0.9rem;
+  color: var(--text-light);
+  font-weight: 500;
+}
+
+.question-card {
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 60px 40px;
+  text-align: center;
+  border-radius: 32px;
+  box-shadow: var(--shadow-xl);
+}
+
+.question-text {
+  font-size: 1.8rem;
+  color: var(--text-dark);
+  margin-bottom: 40px;
+  line-height: 1.4;
+}
+
+.answer-options {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}
+
+.btn-answer {
+  flex: 1;
+  max-width: 200px;
+  padding: 16px 24px;
+  font-size: 1.2rem;
+  border-radius: 16px;
+  border: 2px solid transparent;
+}
+
+.yes-btn {
+  background-color: var(--primary-color);
+  color: white;
+  box-shadow: 0 4px 14px 0 rgba(13, 148, 136, 0.2);
+}
+
+.yes-btn:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(13, 148, 136, 0.3);
+}
+
+.no-btn {
+  background-color: white;
+  color: var(--text-dark);
+  border-color: var(--border-color);
+}
+
+.no-btn:hover {
+  border-color: var(--secondary-color);
+  color: var(--secondary-color);
+  background-color: rgba(249, 115, 22, 0.05);
+  transform: translateY(-2px);
+}
+
+.back-btn {
+  margin-top: 30px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  border: none;
+  font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+  .question-card {
+    padding: 40px 20px;
+  }
+  .question-text {
+    font-size: 1.5rem;
+  }
+  .answer-options {
+    flex-direction: column;
+    align-items: center;
+  }
+  .btn-answer {
+    width: 100%;
+    max-width: 100%;
+  }
+}

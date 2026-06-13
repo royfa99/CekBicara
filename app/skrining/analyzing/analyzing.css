@@ -1,0 +1,129 @@
+.analyzing-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gradient-bg);
+  text-align: center;
+}
+
+.analyzing-content {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.ai-brain-container {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  margin: 0 auto 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pulse-circle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: rgba(13, 148, 136, 0.2);
+  animation: pulseAnim 2s infinite cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pulse-1 {
+  width: 100px;
+  height: 100px;
+  animation-delay: 0s;
+}
+
+.pulse-2 {
+  width: 140px;
+  height: 140px;
+  animation-delay: 0.4s;
+  background: rgba(13, 148, 136, 0.15);
+}
+
+.pulse-3 {
+  width: 180px;
+  height: 180px;
+  animation-delay: 0.8s;
+  background: rgba(13, 148, 136, 0.1);
+}
+
+.ai-icon-wrapper {
+  position: relative;
+  z-index: 10;
+  background: white;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-glow);
+}
+
+.ai-icon {
+  color: var(--primary-color);
+}
+
+.analyzing-title {
+  font-size: 2rem;
+  color: var(--text-dark);
+  margin-bottom: 16px;
+}
+
+.analyzing-subtitle {
+  color: var(--text-light);
+  font-size: 1.1rem;
+  margin-bottom: 40px;
+  line-height: 1.6;
+}
+
+.loading-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+
+.loading-step {
+  font-size: 1rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  opacity: 0;
+}
+
+.loading-step.active {
+  color: var(--primary-color);
+  animation: fadeInOut 2s infinite;
+}
+
+.delay-1 {
+  animation: revealStep 4s forwards;
+  animation-delay: 1.5s;
+}
+
+.delay-2 {
+  animation: revealStep 4s forwards;
+  animation-delay: 2.8s;
+}
+
+@keyframes pulseAnim {
+  0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.8; }
+  100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
+}
+
+@keyframes fadeInOut {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+@keyframes revealStep {
+  0% { opacity: 0; transform: translateY(10px); }
+  10% { opacity: 1; transform: translateY(0); color: var(--primary-color); }
+  90% { opacity: 1; color: var(--primary-color); }
+  100% { opacity: 0.5; color: var(--text-muted); }
+}
