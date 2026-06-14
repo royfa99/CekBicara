@@ -233,7 +233,7 @@ export default function ContentEditorPage() {
           <div className="editor-card" style={{ background: 'white', padding: '24px', borderRadius: '16px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
             <h2 style={{ marginBottom: '16px', color: 'var(--primary-color)' }}>Pertanyaan Skrining & Terapi Khusus</h2>
             <p style={{ fontSize: '0.9rem', color: '#666', marginBottom: '24px' }}>
-              Setiap pertanyaan memiliki daftar Terapi Khusus (Red Flags) di bawahnya yang akan diberikan jika anak gagal menjawab "Ya".
+              Setiap pertanyaan memiliki daftar Terapi Khusus (Red Flags) di bawahnya yang akan diberikan jika anak gagal menjawab &quot;Ya&quot;.
             </p>
 
             {content.questions[activeTab].map((q, qIndex) => (
