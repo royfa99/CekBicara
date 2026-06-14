@@ -14,6 +14,7 @@ interface ScreeningData {
     recommendations: string[];
     stimulationPlan: { task: string; icon: string }[];
   } | null;
+  isPaid?: boolean;
 }
 
 function getRiskClass(riskLevel: string) {
