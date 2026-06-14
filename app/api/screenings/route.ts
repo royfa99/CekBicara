@@ -146,7 +146,18 @@ export async function POST(request: Request) {
     }
 
     const ageInMonths = calculateAgeInMonths(child.date_of_birth, child.is_premature, child.gestational_age);
-    const questions = getQuestionsForAge(ageInMonths);
+    
+    // Fetch dynamic questions from DB
+    let questions = [];
+    const { data: contentData } = await supabase.from('app_content').select('content').eq('id', 1).single();
+    if (contentData && contentData.content && contentData.content.questions) {
+      if (ageInMonths <= 12) questions = contentData.content.questions["0_12"];
+      else if (ageInMonths <= 24) questions = contentData.content.questions["13_24"];
+      else if (ageInMonths <= 36) questions = contentData.content.questions["25_36"];
+      else questions = contentData.content.questions["36_plus"];
+    } else {
+      questions = getQuestionsForAge(ageInMonths);
+    }
 
     // Compute result
     const result = computeScreeningResult(answers, questions, child.name);

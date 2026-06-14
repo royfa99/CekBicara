@@ -71,9 +71,18 @@ export async function GET(_request: Request, { params }: { params: { screeningId
 
     const failedIndices = answers ? answers.map(a => a.question_index) : [];
 
-    // Magic! Generate personalized 30 day tasks
-    const dynamicTasksList = generateDynamicTasks(ageInMonths, failedIndices);
+    // Fetch dynamic tasks from DB
+    let customBaseTasks: string[] = [];
+    const { data: contentData } = await supabase.from('app_content').select('content').eq('id', 1).single();
+    if (contentData && contentData.content && contentData.content.baseTasks) {
+      if (ageInMonths <= 12) customBaseTasks = contentData.content.baseTasks["0_12"];
+      else if (ageInMonths <= 24) customBaseTasks = contentData.content.baseTasks["13_24"];
+      else if (ageInMonths <= 36) customBaseTasks = contentData.content.baseTasks["25_36"];
+      else customBaseTasks = contentData.content.baseTasks["36_plus"];
+    }
 
+    // Magic! Generate personalized 30 day tasks
+    const dynamicTasksList = generateDynamicTasks(ageInMonths, failedIndices, customBaseTasks);
     // 4. Save to database
     const rowsToInsert = dynamicTasksList.map((taskText, index) => ({
       screening_id: id,

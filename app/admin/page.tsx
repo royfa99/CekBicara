@@ -76,6 +76,7 @@ export default function AdminPage() {
             <p className="admin-subtitle">Pantau pertumbuhan aplikasi Cek Bicara secara *real-time*.</p>
           </div>
           <div>
+            <Link href="/admin/editor" className="btn btn-primary" style={{ marginRight: '10px' }}>📝 Editor</Link>
             <Link href="/dashboard" className="btn btn-secondary">Kembali ke App</Link>
           </div>
         </header>

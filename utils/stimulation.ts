@@ -1,59 +1,64 @@
-export function generateDynamicTasks(ageInMonths: number, failedQuestionIndices: number[]): string[] {
+export function generateDynamicTasks(ageInMonths: number, failedQuestionIndices: number[], customBaseTasks?: string[]): string[] {
   // 1. BASE TASKS (Tugas Pengayaan Umum Sesuai Usia)
   let baseTasks: string[] = [];
   
-  if (ageInMonths <= 12) {
-    baseTasks = [
-      "Bermain 'Cilukba' sambil menatap mata anak",
-      "Membacakan buku cerita bergambar yang cerah",
-      "Menyanyikan lagu anak sambil bertepuk tangan",
-      "Membunyikan mainan kerincingan di sisi kiri/kanan telinga",
-      "Mengajak anak bercermin dan menyebutkan namanya",
-      "Pijat lembut bayi sambil mengajaknya mengobrol",
-      "Membiarkan anak menyentuh berbagai tekstur (kain, boneka bulu)",
-      "Bermain cilukba menggunakan selimut",
-      "Memberikan respon heboh/senyum saat bayi mengoceh",
-      "Mengenalkan makanan pendamping dengan berbagai rasa/tekstur"
-    ];
-  } else if (ageInMonths <= 24) {
-    baseTasks = [
-      "Menyanyikan lagu anak dengan gerakan tangan (misal: Topi Saya Bundar)",
-      "Mengajak anak menirukan suara hewan (Kucing: Meow, Sapi: Moo)",
-      "Membacakan buku sambil menunjuk gambarnya",
-      "Bermain puzzle sederhana (2-3 keping)",
-      "Mengajak anak merapikan mainan bersama-sama",
-      "Menamai anggota tubuh saat mandi (Ini hidung, ini perut)",
-      "Bermain bola tangkap bergantian",
-      "Bermain masak-masakan atau pura-pura minum dari gelas",
-      "Menggambar bebas dengan krayon besar",
-      "Berjalan di luar rumah dan menunjuk burung/mobil"
-    ];
-  } else if (ageInMonths <= 36) {
-    baseTasks = [
-      "Bermain peran profesi (dokter-dokteran, polisi)",
-      "Membacakan buku cerita dan menanyakan 'Ini hewan apa?'",
-      "Mengajarkan konsep berlawanan (besar-kecil, atas-bawah)",
-      "Meniup gelembung sabun atau meniup lilin",
-      "Mengajarkan menyebutkan nama lengkap dan umurnya",
-      "Bernyanyi lagu yang sedikit panjang (Pelangi-pelangi)",
-      "Bermain tebak warna dari mainan balok",
-      "Menyembunyikan mainan dan memintanya mencari",
-      "Mendeskripsikan apa yang sedang dikerjakan orang tua",
-      "Melibatkan anak dalam pekerjaan rumah ringan (melipat baju)"
-    ];
+  if (customBaseTasks && customBaseTasks.length > 0) {
+    baseTasks = customBaseTasks;
   } else {
-    baseTasks = [
-      "Mendengarkan anak menceritakan kejadian hari ini",
-      "Bermain tebak-tebakan hewan dari ciri-cirinya",
-      "Mengajarkan anak bertanya 'Kenapa' dan menjawab 'Karena...'",
-      "Bermain balok susun sambil membangun cerita kota/rumah",
-      "Membacakan dongeng sebelum tidur dengan berbagai intonasi suara",
-      "Membiarkan anak memilih pakaian dan menjelaskan alasannya",
-      "Mengajarkan nama-nama hari atau konsep waktu sederhana",
-      "Bernyanyi lagu favorit anak bersama-sama",
-      "Melihat album foto keluarga dan menceritakan kenangan",
-      "Bermain petak umpet dengan aturan yang lebih kompleks"
-    ];
+    // Fallback if customBaseTasks not provided
+    if (ageInMonths <= 12) {
+      baseTasks = [
+        "Bermain 'Cilukba' sambil menatap mata anak",
+        "Membacakan buku cerita bergambar yang cerah",
+        "Menyanyikan lagu anak sambil bertepuk tangan",
+        "Membunyikan mainan kerincingan di sisi kiri/kanan telinga",
+        "Mengajak anak bercermin dan menyebutkan namanya",
+        "Pijat lembut bayi sambil mengajaknya mengobrol",
+        "Membiarkan anak menyentuh berbagai tekstur (kain, boneka bulu)",
+        "Bermain cilukba menggunakan selimut",
+        "Memberikan respon heboh/senyum saat bayi mengoceh",
+        "Mengenalkan makanan pendamping dengan berbagai rasa/tekstur"
+      ];
+    } else if (ageInMonths <= 24) {
+      baseTasks = [
+        "Menyanyikan lagu anak dengan gerakan tangan (misal: Topi Saya Bundar)",
+        "Mengajak anak menirukan suara hewan (Kucing: Meow, Sapi: Moo)",
+        "Membacakan buku sambil menunjuk gambarnya",
+        "Bermain puzzle sederhana (2-3 keping)",
+        "Mengajak anak merapikan mainan bersama-sama",
+        "Menamai anggota tubuh saat mandi (Ini hidung, ini perut)",
+        "Bermain bola tangkap bergantian",
+        "Bermain masak-masakan atau pura-pura minum dari gelas",
+        "Menggambar bebas dengan krayon besar",
+        "Berjalan di luar rumah dan menunjuk burung/mobil"
+      ];
+    } else if (ageInMonths <= 36) {
+      baseTasks = [
+        "Bermain peran profesi (dokter-dokteran, polisi)",
+        "Membacakan buku cerita dan menanyakan 'Ini hewan apa?'",
+        "Mengajarkan konsep berlawanan (besar-kecil, atas-bawah)",
+        "Meniup gelembung sabun atau meniup lilin",
+        "Mengajarkan menyebutkan nama lengkap dan umurnya",
+        "Bernyanyi lagu yang sedikit panjang (Pelangi-pelangi)",
+        "Bermain tebak warna dari mainan balok",
+        "Menyembunyikan mainan dan memintanya mencari",
+        "Mendeskripsikan apa yang sedang dikerjakan orang tua",
+        "Melibatkan anak dalam pekerjaan rumah ringan (melipat baju)"
+      ];
+    } else {
+      baseTasks = [
+        "Mendengarkan anak menceritakan kejadian hari ini",
+        "Bermain tebak-tebakan hewan dari ciri-cirinya",
+        "Mengajarkan anak bertanya 'Kenapa' dan menjawab 'Karena...'",
+        "Bermain balok susun sambil membangun cerita kota/rumah",
+        "Membacakan dongeng sebelum tidur dengan berbagai intonasi suara",
+        "Membiarkan anak memilih pakaian dan menjelaskan alasannya",
+        "Mengajarkan nama-nama hari atau konsep waktu sederhana",
+        "Bernyanyi lagu favorit anak bersama-sama",
+        "Melihat album foto keluarga dan menceritakan kenangan",
+        "Bermain petak umpet dengan aturan yang lebih kompleks"
+      ];
+    }
   }
 
   // 2. TARGETED TASKS (Tugas Spesifik Berdasarkan Red Flags per Usia)
