@@ -22,15 +22,26 @@ function QuestionsContent() {
       return;
     }
 
-    fetch(`/api/children/${childId}`)
-      .then(res => res.json())
-      .then(json => {
-        if (json.success) {
-          const child = json.data;
+    // Fetch child info and questions in parallel
+    Promise.all([
+      fetch(`/api/children/${childId}`).then(res => res.json()),
+      fetch('/api/admin/content').then(res => res.json())
+    ])
+      .then(([childJson, contentJson]) => {
+        if (childJson.success && contentJson.success) {
+          const child = childJson.data;
           const ageInMonths = calculateAgeInMonths(child.dateOfBirth, child.isPremature, child.gestationalAge);
-          setQuestions(getQuestionsForAge(ageInMonths));
+          
+          let fetchedQuestions = [];
+          const contentQuestions = contentJson.data.questions;
+          if (ageInMonths <= 12) fetchedQuestions = contentQuestions["0_12"];
+          else if (ageInMonths <= 24) fetchedQuestions = contentQuestions["13_24"];
+          else if (ageInMonths <= 36) fetchedQuestions = contentQuestions["25_36"];
+          else fetchedQuestions = contentQuestions["36_plus"];
+
+          setQuestions(fetchedQuestions || []);
         } else {
-          alert('Gagal memuat data anak');
+          alert('Gagal memuat data skrining');
         }
         setLoading(false);
       })

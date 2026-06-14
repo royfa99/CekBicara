@@ -73,16 +73,26 @@ export async function GET(_request: Request, { params }: { params: { screeningId
 
     // Fetch dynamic tasks from DB
     let customBaseTasks: string[] = [];
+    let customTargetedTasks: string[][] = [];
     const { data: contentData } = await supabase.from('app_content').select('content').eq('id', 1).single();
-    if (contentData && contentData.content && contentData.content.baseTasks) {
-      if (ageInMonths <= 12) customBaseTasks = contentData.content.baseTasks["0_12"];
-      else if (ageInMonths <= 24) customBaseTasks = contentData.content.baseTasks["13_24"];
-      else if (ageInMonths <= 36) customBaseTasks = contentData.content.baseTasks["25_36"];
-      else customBaseTasks = contentData.content.baseTasks["36_plus"];
+    if (contentData && contentData.content) {
+      if (ageInMonths <= 12) {
+        customBaseTasks = contentData.content.baseTasks?.["0_12"] || [];
+        customTargetedTasks = contentData.content.targetedTasks?.["0_12"] || [];
+      } else if (ageInMonths <= 24) {
+        customBaseTasks = contentData.content.baseTasks?.["13_24"] || [];
+        customTargetedTasks = contentData.content.targetedTasks?.["13_24"] || [];
+      } else if (ageInMonths <= 36) {
+        customBaseTasks = contentData.content.baseTasks?.["25_36"] || [];
+        customTargetedTasks = contentData.content.targetedTasks?.["25_36"] || [];
+      } else {
+        customBaseTasks = contentData.content.baseTasks?.["36_plus"] || [];
+        customTargetedTasks = contentData.content.targetedTasks?.["36_plus"] || [];
+      }
     }
 
     // Magic! Generate personalized 30 day tasks
-    const dynamicTasksList = generateDynamicTasks(ageInMonths, failedIndices, customBaseTasks);
+    const dynamicTasksList = generateDynamicTasks(ageInMonths, failedIndices, customBaseTasks, customTargetedTasks);
     // 4. Save to database
     const rowsToInsert = dynamicTasksList.map((taskText, index) => ({
       screening_id: id,

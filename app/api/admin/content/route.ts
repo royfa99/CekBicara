@@ -64,6 +64,36 @@ const generateDefaultContent = () => {
         "Melihat album foto keluarga dan menceritakan kenangan",
         "Bermain petak umpet dengan aturan yang lebih kompleks"
       ]
+    },
+    targetedTasks: {
+      "0_12": [
+        ["Latihan kontak mata sejajar saat menyusui/makan", "Pegang mainan di dekat mata Anda agar anak menatap wajah Anda", "Pakai topeng/kacamata lucu agar anak terpancing melihat mata Anda"],
+        ["Goda anak dengan gelitik lembut di perut", "Buat suara-suara lucu dengan bibir untuk memancing senyum", "Bermain cilukba secara intens dengan variasi suara"],
+        ["Panggil nama anak dari belakang tanpa menunjukkan wajah", "Ucapkan nama anak dengan nada bernyanyi/melodi", "Berikan mainan hanya saat anak menoleh setelah dipanggil namanya"],
+        ["Tirukan ocehan anak agar ia merasa direspons", "Lakukan stimulasi area bibir dengan sikat gigi jari", "Pancing dengan suara vokal panjang 'Aaaa' atau 'Oooo'"],
+        ["Bunyikan kerincingan di luar jangkauan pandangan", "Bermain tebak arah suara botol berisi beras", "Berikan respon kaget/heboh bersama saat ada suara keras"]
+      ],
+      "13_24": [
+        ["Pegang tangan anak ke dada kita sambil bilang 'Ma-ma' atau 'Pa-pa'", "Main sembunyi dan muncul sambil berseru 'Paaa-paaa!'", "Gunakan cermin dan tunjuk diri sendiri sambil bilang 'Mama/Papa'"],
+        ["Taruh mainan favorit di tempat tinggi yang terlihat, tunggu anak menunjuk", "Jangan langsung ambilkan barang, tuntun tangan anak untuk menunjuk", "Bermain tunjuk gambar di buku 'Mana kucing?'"],
+        ["Latihan mengulangi 1-2 kata fokus hari ini secara intens (misal: 'Bola', 'Susu')", "Berikan pilihan 'Mau Susu atau Air?' agar anak bersuara", "Beri jeda/tunggu anak mencoba mengucap sebelum memberikan sesuatu"],
+        ["Latihan instruksi rutinitas rutin (misal: 'Buang sampahnya')", "Latihan permainan fisik 'Tepuk tangan', 'Pegang hidung'", "Beri instruksi dengan menatap matanya secara langsung dan tegas"],
+        ["Ajak bicara berhadapan sangat dekat agar anak melihat gerak bibir", "Gunakan kata tiruan bunyi yang mudah (Brum-brum, Meong)", "Berikan pujian/tepuk tangan luar biasa meski anak meniru tidak sempurna"]
+      ],
+      "25_36": [
+        ["Perpanjang ucapan anak (Anak bilang 'Susu', balas dengan 'Mau Susu?')", "Ajarkan kombinasi sifat-benda ('Mobil merah', 'Bola besar')", "Gunakan buku bergambar berisi adegan aksi ('Kucing lari', 'Burung terbang')"],
+        ["Latihan Flashcard benda sehari-hari (5 menit/hari)", "Simpan mainan dalam kotak tertutup transparan, minta anak sebutkan isinya", "Keliling rumah sambil tanya 'Ini apa?'"],
+        ["Latihan game 'Bawa bola hijau ke Papa'", "Tugaskan misi kecil (Ambil remot dan letakkan di meja)", "Pecah instruksi besar dengan intonasi jeda yang jelas"],
+        ["Fokus pada pelafalan huruf bibir (B, P, M) dan lidah (T, D, N)", "Ulangi kalimat anak dengan pelafalan yang benar tanpa menyalahkan", "Minta anak berbicara perlahan dengan memberi contoh tempo lambat"],
+        ["Latihan membagikan kue 'Ini untuk kamu, ini untuk saya'", "Bermain peran dengan boneka menggunakan nama ganti", "Sering tekankan kata ganti saat bercerita buku"]
+      ],
+      "36_plus": [
+        ["Ajak main boneka tangan dan buat dialog", "Bantu anak menyambung ide ceritanya dengan kata sambung (lalu, dan)", "Minta anak menjelaskan cara memainkan mainannya"],
+        ["Tanya 'Apa hal paling lucu yang terjadi hari ini?'", "Minta anak menceritakan kembali cerita buku favoritnya", "Tonton video pendek bersama lalu minta anak ceritakan ulang"],
+        ["Permainan 'Berita Hari Ini' pura-pura jadi reporter", "Latihan bernyanyi dengan ritme pelan dan jelas", "Konsultasi terapis untuk latihan oral-motor (senam lidah/bibir)"],
+        ["Pancing rasa penasaran dengan hal aneh (pakai kaus kaki di tangan) agar ia bertanya", "Bacakan buku misteri pendek agar ia banyak bertanya", "Sengaja sembunyikan mainannya agar ia bertanya 'Di mana?'"],
+        ["Main petak umpet mainan dengan petunjuk preposisi (di bawah kasur, di atas meja)", "Latihan menggambar bentuk geometri 'Gambarlah lingkaran di dalam kotak'", "Minta anak menaruh benda ke kotak sesuai instruksi yang rumit"]
+      ]
     }
   };
 };

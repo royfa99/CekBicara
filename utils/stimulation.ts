@@ -1,4 +1,4 @@
-export function generateDynamicTasks(ageInMonths: number, failedQuestionIndices: number[], customBaseTasks?: string[]): string[] {
+export function generateDynamicTasks(ageInMonths: number, failedQuestionIndices: number[], customBaseTasks?: string[], customTargetedTasks?: string[][]): string[] {
   // 1. BASE TASKS (Tugas Pengayaan Umum Sesuai Usia)
   let baseTasks: string[] = [];
   
@@ -64,35 +64,52 @@ export function generateDynamicTasks(ageInMonths: number, failedQuestionIndices:
   // 2. TARGETED TASKS (Tugas Spesifik Berdasarkan Red Flags per Usia)
   const targetedTasksPool: string[] = [];
   
-  if (ageInMonths <= 12) {
-    // 0: Kontak mata, 1: Tersenyum, 2: Merespons nama, 3: Meraban/Oceh, 4: Merespons suara
-    if (failedQuestionIndices.includes(0)) targetedTasksPool.push("Latihan kontak mata sejajar saat menyusui/makan", "Pegang mainan di dekat mata Anda agar anak menatap wajah Anda", "Pakai topeng/kacamata lucu agar anak terpancing melihat mata Anda");
-    if (failedQuestionIndices.includes(1)) targetedTasksPool.push("Goda anak dengan gelitik lembut di perut", "Buat suara-suara lucu dengan bibir untuk memancing senyum", "Bermain cilukba secara intens dengan variasi suara");
-    if (failedQuestionIndices.includes(2)) targetedTasksPool.push("Panggil nama anak dari belakang tanpa menunjukkan wajah", "Ucapkan nama anak dengan nada bernyanyi/melodi", "Berikan mainan hanya saat anak menoleh setelah dipanggil namanya");
-    if (failedQuestionIndices.includes(3)) targetedTasksPool.push("Tirukan ocehan anak agar ia merasa direspons", "Lakukan stimulasi area bibir dengan sikat gigi jari", "Pancing dengan suara vokal panjang 'Aaaa' atau 'Oooo'");
-    if (failedQuestionIndices.includes(4)) targetedTasksPool.push("Bunyikan kerincingan di luar jangkauan pandangan", "Bermain tebak arah suara botol berisi beras", "Berikan respon kaget/heboh bersama saat ada suara keras");
-  } else if (ageInMonths <= 24) {
-    // 0: Panggil Mama/Papa, 1: Menunjuk jari, 2: Kosakata 10-50, 3: 1 Instruksi sederhana, 4: Meniru kata
-    if (failedQuestionIndices.includes(0)) targetedTasksPool.push("Pegang tangan anak ke dada kita sambil bilang 'Ma-ma' atau 'Pa-pa'", "Main sembunyi dan muncul sambil berseru 'Paaa-paaa!'", "Gunakan cermin dan tunjuk diri sendiri sambil bilang 'Mama/Papa'");
-    if (failedQuestionIndices.includes(1)) targetedTasksPool.push("Taruh mainan favorit di tempat tinggi yang terlihat, tunggu anak menunjuk", "Jangan langsung ambilkan barang, tuntun tangan anak untuk menunjuk", "Bermain tunjuk gambar di buku 'Mana kucing?'");
-    if (failedQuestionIndices.includes(2)) targetedTasksPool.push("Latihan mengulangi 1-2 kata fokus hari ini secara intens (misal: 'Bola', 'Susu')", "Berikan pilihan 'Mau Susu atau Air?' agar anak bersuara", "Beri jeda/tunggu anak mencoba mengucap sebelum memberikan sesuatu");
-    if (failedQuestionIndices.includes(3)) targetedTasksPool.push("Latihan instruksi rutinitas rutin (misal: 'Buang sampahnya')", "Latihan permainan fisik 'Tepuk tangan', 'Pegang hidung'", "Beri instruksi dengan menatap matanya secara langsung dan tegas");
-    if (failedQuestionIndices.includes(4)) targetedTasksPool.push("Ajak bicara berhadapan sangat dekat agar anak melihat gerak bibir", "Gunakan kata tiruan bunyi yang mudah (Brum-brum, Meong)", "Berikan pujian/tepuk tangan luar biasa meski anak meniru tidak sempurna");
-  } else if (ageInMonths <= 36) {
-    // 0: Rangkai 2 kata, 1: Nama benda, 2: 2 Instruksi, 3: Dipahami 50%, 4: Kata ganti
-    if (failedQuestionIndices.includes(0)) targetedTasksPool.push("Perpanjang ucapan anak (Anak bilang 'Susu', balas dengan 'Mau Susu?')", "Ajarkan kombinasi sifat-benda ('Mobil merah', 'Bola besar')", "Gunakan buku bergambar berisi adegan aksi ('Kucing lari', 'Burung terbang')");
-    if (failedQuestionIndices.includes(1)) targetedTasksPool.push("Latihan Flashcard benda sehari-hari (5 menit/hari)", "Simpan mainan dalam kotak tertutup transparan, minta anak sebutkan isinya", "Keliling rumah sambil tanya 'Ini apa?'");
-    if (failedQuestionIndices.includes(2)) targetedTasksPool.push("Latihan game 'Bawa bola hijau ke Papa'", "Tugaskan misi kecil (Ambil remot dan letakkan di meja)", "Pecah instruksi besar dengan intonasi jeda yang jelas");
-    if (failedQuestionIndices.includes(3)) targetedTasksPool.push("Fokus pada pelafalan huruf bibir (B, P, M) dan lidah (T, D, N)", "Ulangi kalimat anak dengan pelafalan yang benar tanpa menyalahkan", "Minta anak berbicara perlahan dengan memberi contoh tempo lambat");
-    if (failedQuestionIndices.includes(4)) targetedTasksPool.push("Latihan membagikan kue 'Ini untuk kamu, ini untuk saya'", "Bermain peran dengan boneka menggunakan nama ganti", "Sering tekankan kata ganti saat bercerita buku");
+  let currentTargetedTasks: string[][] = [];
+  
+  if (customTargetedTasks && customTargetedTasks.length > 0) {
+    currentTargetedTasks = customTargetedTasks;
   } else {
-    // > 36 bulan
-    if (failedQuestionIndices.includes(0)) targetedTasksPool.push("Ajak main boneka tangan dan buat dialog", "Bantu anak menyambung ide ceritanya dengan kata sambung (lalu, dan)", "Minta anak menjelaskan cara memainkan mainannya");
-    if (failedQuestionIndices.includes(1)) targetedTasksPool.push("Tanya 'Apa hal paling lucu yang terjadi hari ini?'", "Minta anak menceritakan kembali cerita buku favoritnya", "Tonton video pendek bersama lalu minta anak ceritakan ulang");
-    if (failedQuestionIndices.includes(2)) targetedTasksPool.push("Permainan 'Berita Hari Ini' pura-pura jadi reporter", "Latihan bernyanyi dengan ritme pelan dan jelas", "Konsultasi terapis untuk latihan oral-motor (senam lidah/bibir)");
-    if (failedQuestionIndices.includes(3)) targetedTasksPool.push("Pancing rasa penasaran dengan hal aneh (pakai kaus kaki di tangan) agar ia bertanya", "Bacakan buku misteri pendek agar ia banyak bertanya", "Sengaja sembunyikan mainannya agar ia bertanya 'Di mana?'");
-    if (failedQuestionIndices.includes(4)) targetedTasksPool.push("Main petak umpet mainan dengan petunjuk preposisi (di bawah kasur, di atas meja)", "Latihan menggambar bentuk geometri 'Gambarlah lingkaran di dalam kotak'", "Minta anak menaruh benda ke kotak sesuai instruksi yang rumit");
+    if (ageInMonths <= 12) {
+      currentTargetedTasks = [
+        ["Latihan kontak mata sejajar saat menyusui/makan", "Pegang mainan di dekat mata Anda agar anak menatap wajah Anda", "Pakai topeng/kacamata lucu agar anak terpancing melihat mata Anda"],
+        ["Goda anak dengan gelitik lembut di perut", "Buat suara-suara lucu dengan bibir untuk memancing senyum", "Bermain cilukba secara intens dengan variasi suara"],
+        ["Panggil nama anak dari belakang tanpa menunjukkan wajah", "Ucapkan nama anak dengan nada bernyanyi/melodi", "Berikan mainan hanya saat anak menoleh setelah dipanggil namanya"],
+        ["Tirukan ocehan anak agar ia merasa direspons", "Lakukan stimulasi area bibir dengan sikat gigi jari", "Pancing dengan suara vokal panjang 'Aaaa' atau 'Oooo'"],
+        ["Bunyikan kerincingan di luar jangkauan pandangan", "Bermain tebak arah suara botol berisi beras", "Berikan respon kaget/heboh bersama saat ada suara keras"]
+      ];
+    } else if (ageInMonths <= 24) {
+      currentTargetedTasks = [
+        ["Pegang tangan anak ke dada kita sambil bilang 'Ma-ma' atau 'Pa-pa'", "Main sembunyi dan muncul sambil berseru 'Paaa-paaa!'", "Gunakan cermin dan tunjuk diri sendiri sambil bilang 'Mama/Papa'"],
+        ["Taruh mainan favorit di tempat tinggi yang terlihat, tunggu anak menunjuk", "Jangan langsung ambilkan barang, tuntun tangan anak untuk menunjuk", "Bermain tunjuk gambar di buku 'Mana kucing?'"],
+        ["Latihan mengulangi 1-2 kata fokus hari ini secara intens (misal: 'Bola', 'Susu')", "Berikan pilihan 'Mau Susu atau Air?' agar anak bersuara", "Beri jeda/tunggu anak mencoba mengucap sebelum memberikan sesuatu"],
+        ["Latihan instruksi rutinitas rutin (misal: 'Buang sampahnya')", "Latihan permainan fisik 'Tepuk tangan', 'Pegang hidung'", "Beri instruksi dengan menatap matanya secara langsung dan tegas"],
+        ["Ajak bicara berhadapan sangat dekat agar anak melihat gerak bibir", "Gunakan kata tiruan bunyi yang mudah (Brum-brum, Meong)", "Berikan pujian/tepuk tangan luar biasa meski anak meniru tidak sempurna"]
+      ];
+    } else if (ageInMonths <= 36) {
+      currentTargetedTasks = [
+        ["Perpanjang ucapan anak (Anak bilang 'Susu', balas dengan 'Mau Susu?')", "Ajarkan kombinasi sifat-benda ('Mobil merah', 'Bola besar')", "Gunakan buku bergambar berisi adegan aksi ('Kucing lari', 'Burung terbang')"],
+        ["Latihan Flashcard benda sehari-hari (5 menit/hari)", "Simpan mainan dalam kotak tertutup transparan, minta anak sebutkan isinya", "Keliling rumah sambil tanya 'Ini apa?'"],
+        ["Latihan game 'Bawa bola hijau ke Papa'", "Tugaskan misi kecil (Ambil remot dan letakkan di meja)", "Pecah instruksi besar dengan intonasi jeda yang jelas"],
+        ["Fokus pada pelafalan huruf bibir (B, P, M) dan lidah (T, D, N)", "Ulangi kalimat anak dengan pelafalan yang benar tanpa menyalahkan", "Minta anak berbicara perlahan dengan memberi contoh tempo lambat"],
+        ["Latihan membagikan kue 'Ini untuk kamu, ini untuk saya'", "Bermain peran dengan boneka menggunakan nama ganti", "Sering tekankan kata ganti saat bercerita buku"]
+      ];
+    } else {
+      currentTargetedTasks = [
+        ["Ajak main boneka tangan dan buat dialog", "Bantu anak menyambung ide ceritanya dengan kata sambung (lalu, dan)", "Minta anak menjelaskan cara memainkan mainannya"],
+        ["Tanya 'Apa hal paling lucu yang terjadi hari ini?'", "Minta anak menceritakan kembali cerita buku favoritnya", "Tonton video pendek bersama lalu minta anak ceritakan ulang"],
+        ["Permainan 'Berita Hari Ini' pura-pura jadi reporter", "Latihan bernyanyi dengan ritme pelan dan jelas", "Konsultasi terapis untuk latihan oral-motor (senam lidah/bibir)"],
+        ["Pancing rasa penasaran dengan hal aneh (pakai kaus kaki di tangan) agar ia bertanya", "Bacakan buku misteri pendek agar ia banyak bertanya", "Sengaja sembunyikan mainannya agar ia bertanya 'Di mana?'"],
+        ["Main petak umpet mainan dengan petunjuk preposisi (di bawah kasur, di atas meja)", "Latihan menggambar bentuk geometri 'Gambarlah lingkaran di dalam kotak'", "Minta anak menaruh benda ke kotak sesuai instruksi yang rumit"]
+      ];
+    }
   }
+
+  // Extract tasks for failed indices
+  failedQuestionIndices.forEach(index => {
+    if (currentTargetedTasks[index]) {
+      targetedTasksPool.push(...currentTargetedTasks[index]);
+    }
+  });
 
   // 3. GENERATE 30 DAYS CALENDAR
   const finalTasks: string[] = [];

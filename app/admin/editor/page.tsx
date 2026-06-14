@@ -17,6 +17,12 @@ type AppContent = {
     "25_36": string[];
     "36_plus": string[];
   };
+  targetedTasks: {
+    "0_12": string[][];
+    "13_24": string[][];
+    "25_36": string[][];
+    "36_plus": string[][];
+  };
 };
 
 type AgeBracket = "0_12" | "13_24" | "25_36" | "36_plus";
@@ -33,6 +39,12 @@ export default function ContentEditorPage() {
       .then(res => res.json())
       .then(json => {
         if (json.success) {
+          // Fallback empty array if targetedTasks missing
+          if (!json.data.targetedTasks) {
+             json.data.targetedTasks = {
+               "0_12": [], "13_24": [], "25_36": [], "36_plus": []
+             };
+          }
           setContent(json.data);
         }
         setLoading(false);
@@ -67,6 +79,7 @@ export default function ContentEditorPage() {
     setSaving(false);
   };
 
+  // --- QUESTIONS ---
   const updateQuestion = (index: number, value: string) => {
     if (!content) return;
     const newContent = { ...content };
@@ -74,10 +87,77 @@ export default function ContentEditorPage() {
     setContent(newContent);
   };
 
-  const updateTask = (index: number, value: string) => {
+  const addQuestion = () => {
+    if (!content) return;
+    const newContent = { ...content };
+    newContent.questions[activeTab].push("Pertanyaan Baru");
+    
+    // Auto-create matching targetedTasks array for the new question
+    if (!newContent.targetedTasks[activeTab]) newContent.targetedTasks[activeTab] = [];
+    newContent.targetedTasks[activeTab].push(["Tugas Terapi Khusus Baru"]);
+    
+    setContent(newContent);
+  };
+
+  const deleteQuestion = (index: number) => {
+    if (!content) return;
+    if (!confirm('Yakin ingin menghapus pertanyaan ini beserta daftar tugas spesifiknya?')) return;
+    
+    const newContent = { ...content };
+    newContent.questions[activeTab].splice(index, 1);
+    
+    // Ensure we also delete the matching targetedTasks array
+    if (newContent.targetedTasks[activeTab] && newContent.targetedTasks[activeTab].length > index) {
+      newContent.targetedTasks[activeTab].splice(index, 1);
+    }
+    
+    setContent(newContent);
+  };
+
+  // --- TARGETED TASKS (RED FLAGS) ---
+  const updateTargetedTask = (qIndex: number, tIndex: number, value: string) => {
+    if (!content) return;
+    const newContent = { ...content };
+    newContent.targetedTasks[activeTab][qIndex][tIndex] = value;
+    setContent(newContent);
+  };
+
+  const addTargetedTask = (qIndex: number) => {
+    if (!content) return;
+    const newContent = { ...content };
+    if (!newContent.targetedTasks[activeTab][qIndex]) {
+      newContent.targetedTasks[activeTab][qIndex] = [];
+    }
+    newContent.targetedTasks[activeTab][qIndex].push("Tugas Terapi Khusus Baru");
+    setContent(newContent);
+  };
+
+  const deleteTargetedTask = (qIndex: number, tIndex: number) => {
+    if (!content) return;
+    const newContent = { ...content };
+    newContent.targetedTasks[activeTab][qIndex].splice(tIndex, 1);
+    setContent(newContent);
+  };
+
+  // --- BASE TASKS ---
+  const updateBaseTask = (index: number, value: string) => {
     if (!content) return;
     const newContent = { ...content };
     newContent.baseTasks[activeTab][index] = value;
+    setContent(newContent);
+  };
+
+  const addBaseTask = () => {
+    if (!content) return;
+    const newContent = { ...content };
+    newContent.baseTasks[activeTab].push("Tugas Stimulasi Baru");
+    setContent(newContent);
+  };
+
+  const deleteBaseTask = (index: number) => {
+    if (!content) return;
+    const newContent = { ...content };
+    newContent.baseTasks[activeTab].splice(index, 1);
     setContent(newContent);
   };
 
@@ -114,9 +194,9 @@ export default function ContentEditorPage() {
               className="btn btn-primary" 
               onClick={handleSave}
               disabled={saving}
-              style={{ backgroundColor: 'var(--accent-color)' }}
+              style={{ backgroundColor: 'var(--accent-color)', fontSize: '1.1rem', padding: '12px 24px' }}
             >
-              {saving ? 'Menyimpan...' : '💾 Simpan ke Database'}
+              {saving ? 'Menyimpan...' : '💾 Simpan Perubahan'}
             </button>
           </div>
         </header>
@@ -147,41 +227,95 @@ export default function ContentEditorPage() {
           ))}
         </div>
 
-        <div className="editor-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-          {/* QUESTIONS COLUMN */}
+        <div className="editor-grid" style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '24px', alignItems: 'start' }}>
+          
+          {/* QUESTIONS & TARGETED TASKS COLUMN */}
           <div className="editor-card" style={{ background: 'white', padding: '24px', borderRadius: '16px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
-            <h2 style={{ marginBottom: '16px', color: 'var(--primary-color)' }}>Pertanyaan Skrining</h2>
-            {content.questions[activeTab].map((q, idx) => (
-              <div key={`q-${idx}`} style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', fontSize: '0.9rem' }}>
-                  Soal {idx + 1}
-                </label>
+            <h2 style={{ marginBottom: '16px', color: 'var(--primary-color)' }}>Pertanyaan Skrining & Terapi Khusus</h2>
+            <p style={{ fontSize: '0.9rem', color: '#666', marginBottom: '24px' }}>
+              Setiap pertanyaan memiliki daftar Terapi Khusus (Red Flags) di bawahnya yang akan diberikan jika anak gagal menjawab "Ya".
+            </p>
+
+            {content.questions[activeTab].map((q, qIndex) => (
+              <div key={`q-${qIndex}`} style={{ marginBottom: '32px', padding: '20px', border: '1px solid #e2e8f0', borderRadius: '12px', background: '#f8fafc' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                  <label style={{ fontWeight: 'bold', fontSize: '1rem', color: '#334155' }}>
+                    Soal {qIndex + 1}
+                  </label>
+                  <button onClick={() => deleteQuestion(qIndex)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontWeight: 'bold' }}>
+                    🗑️ Hapus Soal
+                  </button>
+                </div>
+                
                 <textarea
                   value={q}
-                  onChange={(e) => updateQuestion(idx, e.target.value)}
-                  style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0', minHeight: '80px', fontFamily: 'inherit' }}
+                  onChange={(e) => updateQuestion(qIndex, e.target.value)}
+                  style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', minHeight: '60px', fontFamily: 'inherit', marginBottom: '16px' }}
                 />
+
+                {/* TARGETED TASKS FOR THIS QUESTION */}
+                <div style={{ marginLeft: '20px', paddingLeft: '16px', borderLeft: '3px solid var(--accent-color)' }}>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', fontSize: '0.85rem', color: 'var(--accent-color)' }}>
+                    🎯 Terapi Khusus Jika Gagal di Soal {qIndex + 1}
+                  </label>
+                  
+                  {content.targetedTasks[activeTab] && content.targetedTasks[activeTab][qIndex] && content.targetedTasks[activeTab][qIndex].map((task, tIndex) => (
+                    <div key={`tt-${qIndex}-${tIndex}`} style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+                      <input
+                        type="text"
+                        value={task}
+                        onChange={(e) => updateTargetedTask(qIndex, tIndex, e.target.value)}
+                        style={{ flex: 1, padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontFamily: 'inherit', fontSize: '0.9rem' }}
+                      />
+                      <button onClick={() => deleteTargetedTask(qIndex, tIndex)} style={{ background: '#fee2e2', color: '#ef4444', border: 'none', borderRadius: '6px', padding: '0 12px', cursor: 'pointer' }}>
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+                  <button onClick={() => addTargetedTask(qIndex)} style={{ background: 'none', border: '1px dashed var(--accent-color)', color: 'var(--accent-color)', borderRadius: '6px', padding: '6px 12px', cursor: 'pointer', fontSize: '0.85rem', marginTop: '4px' }}>
+                    + Tambah Terapi Khusus
+                  </button>
+                </div>
               </div>
             ))}
+            
+            <button 
+              onClick={addQuestion} 
+              style={{ width: '100%', padding: '16px', background: 'var(--primary-light)', color: 'var(--primary-color)', border: '2px dashed var(--primary-color)', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer', fontSize: '1rem' }}
+            >
+              ➕ Tambah Pertanyaan Baru
+            </button>
           </div>
 
-          {/* TASKS COLUMN */}
+          {/* BASE TASKS COLUMN */}
           <div className="editor-card" style={{ background: 'white', padding: '24px', borderRadius: '16px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
-            <h2 style={{ marginBottom: '16px', color: 'var(--primary-color)' }}>Tugas Stimulasi Dasar (30 Hari)</h2>
+            <h2 style={{ marginBottom: '16px', color: 'var(--primary-color)' }}>Tugas Stimulasi Dasar</h2>
+            <p style={{ fontSize: '0.9rem', color: '#666', marginBottom: '24px' }}>
+              Daftar kegiatan umum yang akan dibagikan ke dalam program 30 hari.
+            </p>
+
             {content.baseTasks[activeTab].map((t, idx) => (
-              <div key={`t-${idx}`} style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', fontSize: '0.9rem' }}>
-                  Tugas {idx + 1}
-                </label>
+              <div key={`t-${idx}`} style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
                 <input
                   type="text"
                   value={t}
-                  onChange={(e) => updateTask(idx, e.target.value)}
-                  style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #e2e8f0', fontFamily: 'inherit' }}
+                  onChange={(e) => updateBaseTask(idx, e.target.value)}
+                  style={{ flex: 1, padding: '10px 12px', borderRadius: '8px', border: '1px solid #e2e8f0', fontFamily: 'inherit' }}
                 />
+                <button onClick={() => deleteBaseTask(idx)} style={{ background: '#fee2e2', color: '#ef4444', border: 'none', borderRadius: '8px', padding: '0 16px', cursor: 'pointer' }}>
+                  🗑️
+                </button>
               </div>
             ))}
+            
+            <button 
+              onClick={addBaseTask} 
+              style={{ width: '100%', padding: '12px', background: 'white', color: '#64748b', border: '2px dashed #cbd5e1', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', marginTop: '8px' }}
+            >
+              + Tambah Tugas Dasar
+            </button>
           </div>
+
         </div>
 
       </div>
