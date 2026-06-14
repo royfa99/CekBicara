@@ -1,0 +1,50 @@
+.main-header {
+  width: 100%;
+  padding: 20px 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 100;
+}
+
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.logo-icon {
+  font-size: 1.5rem;
+}
+
+.logo-text {
+  font-family: var(--font-outfit);
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--primary-color);
+  letter-spacing: -0.02em;
+}
+
+.nav-login-btn {
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  background-color: white;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  transition: all 0.2s ease;
+}
+
+.nav-login-btn:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+}
