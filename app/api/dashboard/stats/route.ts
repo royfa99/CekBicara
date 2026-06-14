@@ -1,29 +1,39 @@
 import { NextResponse } from 'next/server';
-import { db } from '../../../../db';
-import { screenings, children } from '../../../../db/schema';
-import { eq, desc, count } from 'drizzle-orm';
+import { supabase } from '../../../../lib/supabase';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
     // TODO: Filter by authenticated user once auth is implemented
-    const userChildren = await db.select().from(children);
+    const { data: userChildren, error: childrenError } = await supabase.from('children').select('id, name');
+    if (childrenError) throw childrenError;
+
     const childIds = userChildren.map(c => c.id);
 
     let totalSkrining = 0;
     let latestRiskLevel = '-';
     let latestDate = '-';
+    let allScreeningsData: any[] = [];
 
     if (childIds.length > 0) {
-      // Get all screenings for all children of this user
-      const allScreenings = await db.select().from(screenings)
-        .orderBy(desc(screenings.date));
+      const { data: allScreenings, error: screeningsError } = await supabase
+        .from('screenings')
+        .select('*')
+        .in('child_id', childIds)
+        .order('date', { ascending: false });
 
-      const userScreenings = allScreenings.filter(s => childIds.includes(s.childId));
-      totalSkrining = userScreenings.length;
+      if (screeningsError) throw screeningsError;
 
-      if (userScreenings.length > 0) {
-        latestRiskLevel = userScreenings[0].riskLevel;
-        latestDate = userScreenings[0].date;
+      console.log('STATS API - childIds:', childIds);
+      console.log('STATS API - allScreenings:', allScreenings);
+
+      allScreeningsData = allScreenings;
+      totalSkrining = allScreenings.length;
+
+      if (allScreenings.length > 0) {
+        latestRiskLevel = allScreenings[0].risk_level;
+        latestDate = allScreenings[0].date;
       }
     }
 

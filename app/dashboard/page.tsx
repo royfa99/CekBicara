@@ -1,22 +1,34 @@
 import React from 'react';
+import Link from 'next/link';
 import StatCards from '../../components/dashboard/StatCards';
 import DevelopmentChart from '../../components/dashboard/DevelopmentChart';
 import HistoryTable from '../../components/dashboard/HistoryTable';
 import ReminderCard from '../../components/dashboard/ReminderCard';
+import { createClient } from '../../utils/supabase/server';
+import { logout } from '../login/actions';
 
-export default function Dashboard() {
+export default async function Dashboard() {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const initial = user?.email ? user.email.charAt(0).toUpperCase() : 'U';
+
   return (
     <>
       <header className="dashboard-header fade-in">
         <div>
-          <h1 className="dashboard-title">Halo, Ibu Sarah! 👋</h1>
+          <h1 className="dashboard-title">Halo, Ayah/Bunda! 👋</h1>
           <p className="subtitle" style={{ margin: '0', textAlign: 'left' }}>Pantau perkembangan bicara anak Anda di sini.</p>
         </div>
-        <div className="user-profile">
-          <button className="btn btn-primary" style={{ padding: '8px 20px', fontSize: '1rem' }}>
+        <div className="user-profile" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <Link href="/skrining" className="btn btn-primary" style={{ padding: '8px 20px', fontSize: '1rem', textDecoration: 'none' }}>
             + Skrining Baru
-          </button>
-          <div className="avatar">S</div>
+          </Link>
+          <div className="avatar" title={user?.email} style={{ cursor: 'help' }}>{initial}</div>
+          <form action={logout}>
+            <button type="submit" className="btn btn-secondary" style={{ padding: '8px 12px', fontSize: '0.875rem' }}>
+              Keluar
+            </button>
+          </form>
         </div>
       </header>
 

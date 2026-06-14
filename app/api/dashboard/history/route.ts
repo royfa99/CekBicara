@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import { db } from '../../../../db';
-import { screenings, children } from '../../../../db/schema';
-import { eq, desc } from 'drizzle-orm';
+import { supabase } from '../../../../lib/supabase';
+
+export const dynamic = 'force-dynamic';
 
 // Helper to calculate age string from DOB
 function calculateAge(dob: string, screeningDate: string): string {
@@ -24,26 +24,33 @@ function getBadgeClass(riskLevel: string): string {
 
 export async function GET() {
   try {
-    const userChildren = await db.select().from(children);
-    const childIds = userChildren.map(c => c.id);
-    const childMap = Object.fromEntries(userChildren.map(c => [c.id, c]));
+    const { data: userChildren, error: childrenError } = await supabase.from('children').select('*');
+    if (childrenError) throw childrenError;
+
+    const childIds = userChildren.map((c: any) => c.id);
+    const childMap = Object.fromEntries(userChildren.map((c: any) => [c.id, c]));
 
     if (childIds.length === 0) {
       return NextResponse.json({ success: true, data: [] });
     }
 
-    const allScreenings = await db.select().from(screenings).orderBy(desc(screenings.date));
-    const userScreenings = allScreenings.filter(s => childIds.includes(s.childId));
+    const { data: userScreenings, error: screeningsError } = await supabase
+      .from('screenings')
+      .select('*')
+      .in('child_id', childIds)
+      .order('date', { ascending: false });
 
-    const history = userScreenings.map(s => {
-      const child = childMap[s.childId];
+    if (screeningsError) throw screeningsError;
+
+    const history = userScreenings.map((s: any) => {
+      const child = childMap[s.child_id];
       return {
         id: s.id.toString(),
         date: new Date(s.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }),
         childName: child?.name || 'Unknown',
-        age: child ? calculateAge(child.dateOfBirth, s.date) : '-',
-        riskLevel: s.riskLevel,
-        statusClass: getBadgeClass(s.riskLevel)
+        age: child ? calculateAge(child.date_of_birth, s.date) : '-',
+        riskLevel: s.risk_level,
+        statusClass: getBadgeClass(s.risk_level)
       };
     });
 

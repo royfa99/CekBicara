@@ -1,18 +1,12 @@
 import { NextResponse } from 'next/server';
-import { db } from '../../../../db';
-import { screenings, screeningAnswers, screeningResults, children } from '../../../../db/schema';
-import { eq, desc } from 'drizzle-orm';
+import { supabase } from '../../../lib/supabase';
+import { createClient } from '../../../utils/supabase/server';
+import { calculateAgeInMonths, getQuestionsForAge } from '../../../utils/questions';
 
-const QUESTIONS = [
-  "Apakah anak Anda sudah bisa memanggil 'Mama' atau 'Papa' dengan makna?",
-  "Apakah anak Anda menunjuk dengan jari telunjuk untuk meminta sesuatu?",
-  "Apakah anak Anda merespons ketika namanya dipanggil?",
-  "Apakah anak Anda memiliki minimal 10 kosakata yang dapat diucapkan dengan jelas?",
-  "Apakah anak Anda dapat mengikuti instruksi sederhana tanpa bantuan isyarat tangan?"
-];
+export const dynamic = 'force-dynamic';
 
 // Simple rule-based screening engine (replaces AI for now)
-function computeScreeningResult(answers: boolean[], childName: string) {
+function computeScreeningResult(answers: boolean[], questions: string[], childName: string) {
   const yesCount = answers.filter(Boolean).length;
   const total = answers.length;
   const score = Math.round((yesCount / total) * 100);
@@ -34,20 +28,10 @@ function computeScreeningResult(answers: boolean[], childName: string) {
   const redFlags: string[] = [];
   const strengths: string[] = [];
 
-  if (!answers[0]) redFlags.push("Belum bisa memanggil Mama/Papa dengan makna");
-  else strengths.push("Sudah bisa memanggil Mama/Papa dengan makna");
-
-  if (!answers[1]) redFlags.push("Belum menunjuk dengan jari untuk meminta");
-  else strengths.push("Sudah menunjuk untuk meminta sesuatu");
-
-  if (!answers[2]) redFlags.push("Tidak merespons ketika nama dipanggil");
-  else strengths.push("Merespons dengan baik ketika nama dipanggil");
-
-  if (!answers[3]) redFlags.push("Kosakata kurang dari target usia");
-  else strengths.push("Kosakata memadai untuk usia");
-
-  if (!answers[4]) redFlags.push("Belum bisa mengikuti instruksi sederhana");
-  else strengths.push("Mampu mengikuti instruksi sederhana");
+  answers.forEach((answer, i) => {
+    if (!answer) redFlags.push(`Belum bisa: ${questions[i]}`);
+    else strengths.push(`Sudah bisa: ${questions[i]}`);
+  });
 
   let recommendations: string[];
   if (riskLevel === 'Risiko Rendah') {
@@ -83,22 +67,56 @@ function computeScreeningResult(answers: boolean[], childName: string) {
   return { riskLevel, summary, score, redFlags, strengths, recommendations, stimulationPlan };
 }
 
-// GET /api/screenings — list all screenings (optionally ?childId=)
 export async function GET(request: Request) {
   try {
+    const supabaseClient = createClient();
+    const { data: { user } } = await supabaseClient.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const childId = searchParams.get('childId');
 
-    let query;
-    if (childId) {
-      query = await db.select().from(screenings)
-        .where(eq(screenings.childId, parseInt(childId)))
-        .orderBy(desc(screenings.date));
-    } else {
-      query = await db.select().from(screenings).orderBy(desc(screenings.date));
+    // First get all child IDs belonging to this user
+    const { data: userChildren } = await supabase
+      .from('children')
+      .select('id')
+      .eq('user_id', user.id);
+
+    const validChildIds = userChildren ? userChildren.map(c => c.id) : [];
+
+    if (validChildIds.length === 0) {
+      return NextResponse.json({ success: true, data: [] });
     }
 
-    return NextResponse.json({ success: true, data: query });
+    let query = supabase.from('screenings').select('*').order('date', { ascending: false });
+
+    if (childId) {
+      if (!validChildIds.includes(parseInt(childId))) {
+        return NextResponse.json({ success: false, error: 'Unauthorized child access' }, { status: 403 });
+      }
+      query = query.eq('child_id', parseInt(childId));
+    } else {
+      query = query.in('child_id', validChildIds);
+    }
+
+    const { data: screenings, error } = await query;
+
+    if (error) throw error;
+
+    const mappedScreenings = screenings.map((s: any) => ({
+      id: s.id,
+      childId: s.child_id,
+      date: s.date,
+      riskLevel: s.risk_level,
+      summary: s.summary,
+      score: s.score,
+      createdAt: s.created_at
+    }));
+
+    return NextResponse.json({ success: true, data: mappedScreenings });
   } catch (error) {
     console.error('Error fetching screenings:', error);
     return NextResponse.json({ success: false, error: 'Failed to fetch screenings' }, { status: 500 });
@@ -117,46 +135,74 @@ export async function POST(request: Request) {
     }
 
     // Get child name for summary
-    const [child] = await db.select().from(children).where(eq(children.id, childId));
-    if (!child) {
+    const { data: child, error: childError } = await supabase
+      .from('children')
+      .select('*')
+      .eq('id', childId)
+      .single();
+
+    if (childError || !child) {
       return NextResponse.json({ success: false, error: 'Child not found' }, { status: 404 });
     }
 
+    const ageInMonths = calculateAgeInMonths(child.date_of_birth, child.is_premature, child.gestational_age);
+    const questions = getQuestionsForAge(ageInMonths);
+
     // Compute result
-    const result = computeScreeningResult(answers, child.name);
+    const result = computeScreeningResult(answers, questions, child.name);
 
     // 1. Insert screening
-    const [screening] = await db.insert(screenings).values({
-      childId,
-      date: new Date().toISOString().split('T')[0],
-      riskLevel: result.riskLevel,
-      summary: result.summary,
-      score: result.score,
-      createdAt: new Date().toISOString()
-    }).returning();
+    const { data: screening, error: screeningError } = await supabase
+      .from('screenings')
+      .insert({
+        child_id: childId,
+        date: new Date().toISOString().split('T')[0],
+        risk_level: result.riskLevel,
+        summary: result.summary,
+        score: result.score,
+        created_at: new Date().toISOString()
+      })
+      .select()
+      .single();
+
+    if (screeningError) throw screeningError;
 
     // 2. Insert answers
     const answerRows = answers.map((answer: boolean, index: number) => ({
-      screeningId: screening.id,
-      questionIndex: index,
-      questionText: QUESTIONS[index] || `Pertanyaan ${index + 1}`,
+      screening_id: screening.id,
+      question_index: index,
+      question_text: questions[index] || `Pertanyaan ${index + 1}`,
       answer
     }));
-    await db.insert(screeningAnswers).values(answerRows);
+    
+    const { error: answersError } = await supabase.from('screening_answers').insert(answerRows);
+    if (answersError) throw answersError;
 
     // 3. Insert result
-    await db.insert(screeningResults).values({
-      screeningId: screening.id,
-      redFlags: JSON.stringify(result.redFlags),
+    const { error: resultsError } = await supabase.from('screening_results').insert({
+      screening_id: screening.id,
+      red_flags: JSON.stringify(result.redFlags),
       strengths: JSON.stringify(result.strengths),
       recommendations: JSON.stringify(result.recommendations),
-      stimulationPlan: JSON.stringify(result.stimulationPlan)
+      stimulation_plan: JSON.stringify(result.stimulationPlan)
     });
+    
+    if (resultsError) throw resultsError;
+
+    const mappedScreening = {
+      id: screening.id,
+      childId: screening.child_id,
+      date: screening.date,
+      riskLevel: screening.risk_level,
+      summary: screening.summary,
+      score: screening.score,
+      createdAt: screening.created_at
+    };
 
     return NextResponse.json({
       success: true,
       data: {
-        screening,
+        screening: mappedScreening,
         result: {
           riskLevel: result.riskLevel,
           summary: result.summary,

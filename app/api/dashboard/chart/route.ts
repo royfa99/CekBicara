@@ -1,23 +1,30 @@
 import { NextResponse } from 'next/server';
-import { db } from '../../../../db';
-import { screenings, children } from '../../../../db/schema';
-import { eq, asc } from 'drizzle-orm';
+import { supabase } from '../../../../lib/supabase';
+
+export const dynamic = 'force-dynamic';
 
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
 
 export async function GET() {
   try {
-    const userChildren = await db.select().from(children);
-    const childIds = userChildren.map(c => c.id);
+    const { data: userChildren, error: childrenError } = await supabase.from('children').select('id');
+    if (childrenError) throw childrenError;
+
+    const childIds = userChildren.map((c: any) => c.id);
 
     if (childIds.length === 0) {
       return NextResponse.json({ success: true, data: [] });
     }
 
-    const allScreenings = await db.select().from(screenings).orderBy(asc(screenings.date));
-    const userScreenings = allScreenings.filter(s => childIds.includes(s.childId));
+    const { data: userScreenings, error: screeningsError } = await supabase
+      .from('screenings')
+      .select('*')
+      .in('child_id', childIds)
+      .order('date', { ascending: true });
 
-    const chartData = userScreenings.map(s => {
+    if (screeningsError) throw screeningsError;
+
+    const chartData = userScreenings.map((s: any) => {
       const date = new Date(s.date);
       return {
         month: MONTH_NAMES[date.getMonth()],

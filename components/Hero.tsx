@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import './Hero.css';
 
 export default function Hero() {
@@ -14,9 +15,9 @@ export default function Hero() {
             Skrining risiko speech delay dalam 3 menit berdasarkan milestone perkembangan anak. Ketahui lebih dini, tangani lebih cepat.
           </p>
           <div className="hero-actions">
-            <button className="btn btn-primary btn-large animate-pulse">
+            <Link href="/skrining" className="btn btn-primary btn-large animate-pulse" style={{ display: 'inline-block' }}>
               Mulai Skrining Gratis
-            </button>
+            </Link>
             <p className="hero-note">Sudah digunakan oleh 10,000+ orang tua</p>
           </div>
         </div>
@@ -31,7 +32,7 @@ export default function Hero() {
             <div className="stat-label">Waktu Pengerjaan</div>
           </div>
           <div className="glass-panel stat-card card-3">
-            <div className="stat-icon">✨</div>
+            <div className="stat-icon">🧠</div>
             <div className="stat-label">Analisis AI</div>
           </div>
           <div className="hero-blob"></div>
