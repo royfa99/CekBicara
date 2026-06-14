@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '../../../../lib/supabase';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/children/[id] — get single child
 export async function GET(_request: Request, { params }: { params: { id: string } }) {
   try {

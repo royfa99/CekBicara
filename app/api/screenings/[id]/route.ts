@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '../../../../lib/supabase';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/screenings/[id] — get single screening with answers and result
 export async function GET(_request: Request, { params }: { params: { id: string } }) {
   try {
